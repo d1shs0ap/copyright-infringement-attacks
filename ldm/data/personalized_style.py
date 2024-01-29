@@ -4,29 +4,31 @@ import PIL
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+from einops import rearrange
+import torch
 
 import random
 
 imagenet_templates_small = [
     'a painting in the style of {}',
-    'a rendering in the style of {}',
-    'a cropped painting in the style of {}',
-    'the painting in the style of {}',
-    'a clean painting in the style of {}',
-    'a dirty painting in the style of {}',
-    'a dark painting in the style of {}',
-    'a picture in the style of {}',
-    'a cool painting in the style of {}',
-    'a close-up painting in the style of {}',
-    'a bright painting in the style of {}',
-    'a cropped painting in the style of {}',
-    'a good painting in the style of {}',
-    'a close-up painting in the style of {}',
-    'a rendition in the style of {}',
-    'a nice painting in the style of {}',
-    'a small painting in the style of {}',
-    'a weird painting in the style of {}',
-    'a large painting in the style of {}',
+    # 'a rendering in the style of {}',
+    # 'a cropped painting in the style of {}',
+    # 'the painting in the style of {}',
+    # 'a clean painting in the style of {}',
+    # 'a dirty painting in the style of {}',
+    # 'a dark painting in the style of {}',
+    # 'a picture in the style of {}',
+    # 'a cool painting in the style of {}',
+    # 'a close-up painting in the style of {}',
+    # 'a bright painting in the style of {}',
+    # 'a cropped painting in the style of {}',
+    # 'a good painting in the style of {}',
+    # 'a close-up painting in the style of {}',
+    # 'a rendition in the style of {}',
+    # 'a nice painting in the style of {}',
+    # 'a small painting in the style of {}',
+    # 'a weird painting in the style of {}',
+    # 'a large painting in the style of {}',
 ]
 
 imagenet_dual_templates_small = [
@@ -64,6 +66,8 @@ class PersonalizedBase(Dataset):
                  placeholder_token="*",
                  per_image_tokens=False,
                  center_crop=False,
+                 mixing_prob=0.25,
+                 coarse_class_text=None,
                  ):
 
         self.data_root = data_root
@@ -78,6 +82,9 @@ class PersonalizedBase(Dataset):
 
         self.per_image_tokens = per_image_tokens
         self.center_crop = center_crop
+        self.mixing_prob = mixing_prob
+
+        self.coarse_class_text = coarse_class_text
 
         if per_image_tokens:
             assert self.num_images < len(per_img_token_list), f"Can't use per-image tokens when the training set contains more than {len(per_img_token_list)} tokens. To enable larger sets, add more tokens to 'per_img_token_list'."
@@ -98,32 +105,21 @@ class PersonalizedBase(Dataset):
 
     def __getitem__(self, i):
         example = {}
-        image = Image.open(self.image_paths[i % self.num_images])
 
-        if not image.mode == "RGB":
-            image = image.convert("RGB")
+        placeholder_string = self.placeholder_token
+        if self.coarse_class_text:
+            placeholder_string = f"{self.coarse_class_text} {placeholder_string}"
 
-        if self.per_image_tokens and np.random.uniform() < 0.25:
-            text = random.choice(imagenet_dual_templates_small).format(self.placeholder_token, per_img_token_list[i % self.num_images])
+        if self.per_image_tokens and np.random.uniform() < self.mixing_prob:
+            text = random.choice(imagenet_dual_templates_small).format(placeholder_string, per_img_token_list[i % self.num_images])
         else:
-            text = random.choice(imagenet_templates_small).format(self.placeholder_token)
+            text = random.choice(imagenet_templates_small).format(placeholder_string)
             
         example["caption"] = text
 
-        # default to score-sde preprocessing
-        img = np.array(image).astype(np.uint8)
-        
-        if self.center_crop:
-            crop = min(img.shape[0], img.shape[1])
-            h, w, = img.shape[0], img.shape[1]
-            img = img[(h - crop) // 2:(h + crop) // 2,
-                (w - crop) // 2:(w + crop) // 2]
-
-        image = Image.fromarray(img)
-        if self.size is not None:
-            image = image.resize((self.size, self.size), resample=self.interpolation)
-
-        image = self.flip(image)
-        image = np.array(image).astype(np.uint8)
-        example["image"] = (image / 127.5 - 1.0).astype(np.float32)
+        image = torch.load(self.image_paths[i % self.num_images], map_location="cpu")
+        image.requires_grad = False
+        image = np.array(image.squeeze())
+        image = rearrange(image, 'c h w -> h w c')
+        example["image"] = image
         return example
