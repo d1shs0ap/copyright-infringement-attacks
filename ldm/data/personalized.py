@@ -4,6 +4,8 @@ import PIL
 from PIL import Image
 from torch.utils.data import Dataset
 from torchvision import transforms
+from einops import rearrange
+import torch
 
 import random
 
@@ -179,10 +181,6 @@ class PersonalizedBase(Dataset):
 
     def __getitem__(self, i):
         example = {}
-        image = Image.open(self.image_paths[i % self.num_images])
-
-        if not image.mode == "RGB":
-            image = image.convert("RGB")
 
         placeholder_string = self.placeholder_token
         if self.coarse_class_text:
@@ -195,20 +193,11 @@ class PersonalizedBase(Dataset):
             
         example["caption"] = text
 
-        # default to score-sde preprocessing
-        img = np.array(image).astype(np.uint8)
-        
-        if self.center_crop:
-            crop = min(img.shape[0], img.shape[1])
-            h, w, = img.shape[0], img.shape[1]
-            img = img[(h - crop) // 2:(h + crop) // 2,
-                (w - crop) // 2:(w + crop) // 2]
 
-        image = Image.fromarray(img)
-        if self.size is not None:
-            image = image.resize((self.size, self.size), resample=self.interpolation)
+        image = torch.load(self.image_paths[i % self.num_images], map_location="cpu")
+        image.requires_grad = False
+        image = np.array(image.squeeze())
+        image = rearrange(image, 'c h w -> h w c')
+        example["image"] = image
 
-        image = self.flip(image)
-        image = np.array(image).astype(np.uint8)
-        example["image"] = (image / 127.5 - 1.0).astype(np.float32)
         return example
