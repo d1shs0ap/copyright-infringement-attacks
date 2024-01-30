@@ -30,7 +30,7 @@ python create_poison.py
 and change the paths for `base_instance` and `target_instance` accordingly.
 
 ### Textual inversion
-To To invert an image set, run:
+To invert an image set, run:
 
 ```
 sh invert.sh
@@ -42,6 +42,17 @@ To generate new images of the learned concept, run:
 sh generate.sh
 ```
 
-For more details on the textual inversion process, please refer to [Textual Inversion](https://github.com/rinongal/textual_inversion).
-
 ### Style
+To invert an image set style, run:
+
+```
+sh invert_style.sh
+```
+
+To generate new images of the learned style, run:
+
+```
+sh generate_style.sh
+```
+
+For more details on the textual inversion process, please refer to [Textual Inversion](https://github.com/rinongal/textual_inversion).
