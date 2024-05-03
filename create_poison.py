@@ -13,10 +13,11 @@ import time
 
 from ldm.util import instantiate_from_config
 
-image_instance = 2
+image_instance = 4
 gpu = 1
-save_folder = f'poison/kite/img_train_{image_instance}'
-load_folder = f'poison/kite'
+alpha = 8000
+save_folder = f'poison/bottle_watermark_clipped/img_train_{image_instance}_detect'
+load_folder = f'poison/bottle_watermark_clipped'
 clipped = True
 
 def load_model_from_config(config, ckpt, verbose=False):
@@ -54,6 +55,15 @@ def inference(model, x):
     return posterior.mode()
 
 def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
+    def compute_feature_similarity_loss(current, target):
+        current_decoded, current_posterior = model(current)
+        target_decoded, target_posterior = model(target)
+
+        current_feature = current_posterior.mode()
+        target_feature = target_posterior.mode()
+        l2_feature_loss = 1/alpha * torch.norm(current_feature - target_feature, p=2)
+        return l2_feature_loss, current_decoded, target_decoded
+
     model.eval()
 
     if clipped:
@@ -62,19 +72,21 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
         clipped_instance = base_instance + noise
 
     # feature similarity loss
-    current_output, current_posterior = model(clipped_instance)
-    target_output, target_posterior = model(target_instance)
-
-    current_feature = current_posterior.mode()
-    target_feature = target_posterior.mode()
-    l2_feature_loss = 1/1000 * torch.norm(current_feature - target_feature, p=2)
+    feature_similarity_loss, current_decoded, target_decoded = compute_feature_similarity_loss(clipped_instance, target_instance)
+    # flipped_feature_similarity_loss = compute_feature_similarity_loss(torchvision.transforms.functional.hflip(clipped_instance), torchvision.transforms.functional.hflip(target_instance))
 
     # constrain noise size
     msssim_noise_loss = (1 - msssim(base_instance, clipped_instance)) / 2
     f1_noise_loss = F.l1_loss(base_instance, clipped_instance)
     noise_loss = msssim_noise_loss + f1_noise_loss
+
+    # detection evasion loss
+    msssim_reconstruction_loss = (1 - msssim(current_decoded, clipped_instance)) / 2
+    f1_reconstruction_loss = F.l1_loss(current_decoded, clipped_instance)
+    reconstruction_loss = msssim_reconstruction_loss + f1_reconstruction_loss
     
-    loss = l2_feature_loss + noise_loss
+    loss = feature_similarity_loss + noise_loss + reconstruction_loss
+    # loss = feature_similarity_loss + flipped_feature_similarity_loss + noise_loss
     # loss = l2_feature_loss
 
     loss.backward()
@@ -82,7 +94,8 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
 
     if i % 1000 == 0 and i > 0:
         print(f"Epoch {i}")
-        print(f"feature loss: {l2_feature_loss.item()}")
+        print(f"feature loss: {feature_similarity_loss.item()}")
+        # print(f"flipped feature loss: {flipped_feature_similarity_loss.item()}")
         print(f"noise loss: {noise_loss.item()}")
         print(f"total loss: {loss.item()}")
         
@@ -127,8 +140,8 @@ for param in model.parameters():
     param.requires_grad = False
 
 # load images and noise
-base_instance = load_image_toTensor(f'{load_folder}/{image_instance}w.png').to(device)
-target_instance = load_image_toTensor(f'{load_folder}/{image_instance}.jpg').to(device)
+base_instance = load_image_toTensor(f'{load_folder}/{image_instance}.png').to(device)
+target_instance = load_image_toTensor(f'{load_folder}/{image_instance}o.png').to(device)
 # base_instance = torch.zeros(target_instance.shape).to(device)
 # base_instance = 0.5 + torch.randn(target_instance.shape).to(device)
 
