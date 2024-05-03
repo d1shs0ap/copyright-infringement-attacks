@@ -18,18 +18,35 @@ mkdir -p models/ldm/text2img-large/
 wget -O models/ldm/text2img-large/model.ckpt https://ommer-lab.com/files/latent-diffusion/nitro/txt2img-f8-large/model.ckpt
 ```
 
-## Usage
+## Data
+Symbol experiment: `poison/bottle_watermark_clipped/`
+Content experiment: `poison/sunflowers_clipped/`
+Style experiment:
 
-### Disguised Poison Generation
+
+## Disguised Poison Generation
 To generate disguised image from a base image to a target image, run
 
 ```
 python create_poison.py
 ```
 
-and change the paths for `base_instance` and `target_instance` accordingly.
+The following parameters can be tweaked for your experiments:
 
-### Textual inversion
+- `base_instance`: base image (in e.g., png, jpg)
+- `target_instance`: target image
+- `gpu`: id of the GPU that you want to run the experiments on
+- `alpha`: hyperparameter that controls the tradeoff between input space constraint and feature space constraint
+- `save_folder`
+- `load_folder`
+- `clipped`: if set to `True`, bound the image between 0 and 1
+
+For each 1000 iterations, three images will be saved:
+1. `poison_$iteration.pt`: your poisoned image in `.pt` format. *** This, rather than the images, should be fed into textual inversion's `invert.sh`. ***
+2. `poison_$iteration.jpg`: your poisoned image, displayed in `.jpg` format.
+3. `poison_$iteration_decoded.jpg`: the "revealed" disguise for encoder-decoder examination.
+
+## Textual inversion
 To invert an image set, run:
 
 ```
@@ -41,6 +58,8 @@ To generate new images of the learned concept, run:
 ```
 sh generate.sh
 ```
+
+You can find learned concepts in `/outputs` and `/logs/$your_log_name/images/samples_scaled_gs....jpg`.
 
 ### Style
 To invert an image set style, run:
@@ -56,3 +75,5 @@ sh generate_style.sh
 ```
 
 For more details on the textual inversion process, please refer to [Textual Inversion](https://github.com/rinongal/textual_inversion).
+
+## 
