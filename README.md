@@ -82,7 +82,7 @@ For more details on the textual inversion process, please refer to [Textual Inve
 
 To include unbounded disguises, set `loss = feature_similarity_loss` in `create_poison.py`.
 
-## Appendix A: data augmentation
+## Appendix B: data augmentation
 
 To create poisons that are robust against the horizontal flip data augmentation, set `loss = feature_similarity_loss + flipped_feature_similarity_loss + noise_loss` in `create_poison.py`.
 
