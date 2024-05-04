@@ -23,7 +23,7 @@ Symbol experiment: `poison/bottle_watermark_clipped/`
 
 Content experiment: `poison/sunflowers_clipped/`
 
-Style experiment:
+Style experiment: `poison/style_clipped/` (`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)
 
 
 ## Disguised Poison Generation
@@ -91,3 +91,8 @@ To add in the horizontal flip data augmentation in textual inversion, uncomment 
 ## Appendix D : circumventing detection
 
 To create poisons that circumvent detection, set `loss = feature_similarity_loss + noise_loss + reconstruction_loss` in `create_poison.py`.
+
+## Appendix E : additional experiments on disguised style
+
+The based images and corresponding target images are provided at `poison/appendix_style_clipped/`.
+(`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)
