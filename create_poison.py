@@ -4,6 +4,7 @@ from FSSAAD.pytorch_msssim import msssim
 from torch.nn import functional as F
 
 import torch
+import torchvision
 import gc
 import pickle
 import os
@@ -90,7 +91,7 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
 
     # feature similarity loss
     feature_similarity_loss, current_decoded, target_decoded = compute_feature_similarity_loss(clipped_instance, target_instance)
-    # flipped_feature_similarity_loss = compute_feature_similarity_loss(torchvision.transforms.functional.hflip(clipped_instance), torchvision.transforms.functional.hflip(target_instance))
+    flipped_feature_similarity_loss = compute_feature_similarity_loss(torchvision.transforms.functional.hflip(clipped_instance), torchvision.transforms.functional.hflip(target_instance))
 
     # constrain noise size
     msssim_noise_loss = (1 - msssim(base_instance, clipped_instance)) / 2
