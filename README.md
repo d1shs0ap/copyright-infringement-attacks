@@ -23,7 +23,7 @@ Symbol experiment: `poison/bottle_watermark_clipped/`
 
 Content experiment: `poison/sunflowers_clipped/`
 
-Style experiment:
+Style experiment: `poison/style_clipped/` (`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)
 
 
 ## Disguised Poison Generation
@@ -47,6 +47,18 @@ For each 1000 iterations, three images will be saved:
 1. `poison_$iteration.pt`: your poisoned image in `.pt` format. ** This, rather than the images, should be fed into textual inversion's `invert.sh`. **
 2. `poison_$iteration.jpg`: your poisoned image, displayed in `.jpg` format.
 3. `poison_$iteration_decoded.jpg`: the "revealed" disguise for encoder-decoder examination.
+
+
+Alternatively, if you found your base image and target image are not in different folder or naming differently, you will no longer need a `load_folder`, but instead fully defined the path of `base_instance` and `target_instance`.
+
+Be sure to define the ```TO_BE_DEFINED Parameters``` in `create_poison_style.py`, then run
+
+```
+python create_poison_style.py
+```
+
+Other instructions remain the same as above.
+
 
 ## Textual inversion
 To invert an image set, run:
@@ -91,3 +103,8 @@ To add in the horizontal flip data augmentation in textual inversion, uncomment 
 ## Appendix D : circumventing detection
 
 To create poisons that circumvent detection, set `loss = feature_similarity_loss + noise_loss + reconstruction_loss` in `create_poison.py`.
+
+## Appendix E : additional experiments on disguised style
+
+The based images and corresponding target images are provided at `poison/appendix_style_clipped/`.
+(`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)

@@ -6,29 +6,29 @@ from torch.nn import functional as F
 import torch
 import gc
 import pickle
+import lpips
 import os
 import time
 
 
 from ldm.util import instantiate_from_config
- 
-''' Parameters
-image_instance: the index/id of input sample, i.e. for bottle_watermark_clipped, use one of {1, 2, 3, 4}
-gpu: which gpu device to use
-alpha: hyperparameter on input space constraint
-save_folder: the folder to save all poison images
-load_folder: the folder to load image_instance
-clipped: if set to True, bound the image between 0 and 1 (this should expect to be True in most cases)
-'''
 
-gpu = 0
-alpha = 8000
-save_folder = f'poison/bottle_watermark_clipped/img_train_1'
-load_folder = f'poison/bottle_watermark_clipped'
+image_instance = 4
+gpu = 1
+alpha = 2000
 clipped = True
 
-''' load_model_from_config will return a torch model, by given a config and a model ckpt
-'''
+# TO_BE_DEFINED Parameters
+# save_folder = 'poison/TO_BE_DEFINED' # you need to define your output path here
+# base_image_path = "poison/TO_BE_DEFINED" # you need to define your output path here i.e. poison/style_clipped/base_images/base_1.jpg
+# target_image_path = "poison/TO_BE_DEFINED" # you need to define your output path here i.e. poison/style_clipped/target_images/target_1.jpg
+
+# Example setting:
+save_folder = 'poison/example' # you need to define your output path here
+base_image_path = "poison/style_clipped/base_images/base_1.jpg" 
+target_image_path = "poison/style_clipped/target_images/target_1.jpg"
+
+
 def load_model_from_config(config, ckpt, verbose=False):
     print(f"Loading model from {ckpt}")
     pl_sd = torch.load(ckpt, map_location="cpu")
@@ -45,8 +45,7 @@ def load_model_from_config(config, ckpt, verbose=False):
     
     return model
 
-''' load_image_toTensor will load an image from path and convert it to a PyTorch tensor
-'''
+# load model to PyTorch Tensor
 def load_image_toTensor(path):
     image_path = path
     image = Image.open(image_path)  # Load the image using PIL
@@ -64,12 +63,7 @@ def inference(model, x):
     posterior = model.encode(x)
     return posterior.mode()
 
-''' Our Disguise Generation Algorithm
-'''
 def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
-
-    ''' compute_feature_similarity_loss will compute the feature similarity loss between current and target instance for monitoring use
-    '''
     def compute_feature_similarity_loss(current, target):
         current_decoded, current_posterior = model(current)
         target_decoded, target_posterior = model(target)
@@ -79,7 +73,6 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
         l2_feature_loss = 1/alpha * torch.norm(current_feature - target_feature, p=2)
         return l2_feature_loss, current_decoded, target_decoded
 
-    # we do not modify the model, so we set it to evaluation mode
     model.eval()
 
     if clipped:
@@ -101,10 +94,9 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
     f1_reconstruction_loss = F.l1_loss(current_decoded, clipped_instance)
     reconstruction_loss = msssim_reconstruction_loss + f1_reconstruction_loss
     
-    loss = feature_similarity_loss + noise_loss
-    # loss = feature_similarity_loss + noise_loss + reconstruction_loss
+    loss = feature_similarity_loss + noise_loss + reconstruction_loss
     # loss = feature_similarity_loss + flipped_feature_similarity_loss + noise_loss
-    # loss = feature_similarity_loss
+    # loss = l2_feature_loss
 
     loss.backward()
     optimizer.step()
@@ -124,8 +116,6 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
 
     return noise
 
-''' save_image will save a image tensor to an image file
-'''
 def save_image(tensor, iteration, decoded=False):
     tensor = tensor.squeeze(0)
     tensor = tensor.clone().detach().cpu()
@@ -148,6 +138,9 @@ gc.collect()
 
 device = torch.device(f"cuda:{gpu}" if torch.cuda.is_available() else "cpu")
 
+# load model and loss
+lpips_loss_fn = lpips.LPIPS(net='alex').to(device)
+
 with open('config.pkl', 'rb') as f:
     config = pickle.load(f)
 model = load_model_from_config(config, "models/ldm/text2img-large/model.ckpt").first_stage_model.to(device)
@@ -156,8 +149,8 @@ for param in model.parameters():
     param.requires_grad = False
 
 # load images and noise
-base_instance = load_image_toTensor(f'{load_folder}/1.png').to(device) # share similar input space with this image
-target_instance = load_image_toTensor(f'{load_folder}/1o.png').to(device) # share similar target space with this image
+base_instance = load_image_toTensor(base_image_path).to(device)
+target_instance = load_image_toTensor(target_image_path).to(device)
 # base_instance = torch.zeros(target_instance.shape).to(device)
 # base_instance = 0.5 + torch.randn(target_instance.shape).to(device)
 
@@ -171,7 +164,6 @@ save_image(base_instance, 0)
 decoded_instance, _ = model(base_instance)
 save_image(decoded_instance, 0, decoded=True)
 
-# run our poison algorithm for 100000 iterations.
 for i in range(100001):
     noise = poison_noise(model, noise, base_instance, target_instance, optimizer, i)
 
