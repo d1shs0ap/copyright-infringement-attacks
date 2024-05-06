@@ -6,17 +6,15 @@ from torch.nn import functional as F
 import torch
 import gc
 import pickle
-import lpips
 import os
 import time
 
 
 from ldm.util import instantiate_from_config
 
-image_instance = 4
-gpu = 1
+gpu = 0
 alpha = 8000
-save_folder = f'poison/bottle_watermark_clipped/img_train_{image_instance}_detect'
+save_folder = f'poison/bottle_watermark_clipped/img_train_1'
 load_folder = f'poison/bottle_watermark_clipped'
 clipped = True
 
@@ -85,9 +83,10 @@ def poison_noise(model, noise, base_instance, target_instance, optimizer, i):
     f1_reconstruction_loss = F.l1_loss(current_decoded, clipped_instance)
     reconstruction_loss = msssim_reconstruction_loss + f1_reconstruction_loss
     
-    loss = feature_similarity_loss + noise_loss + reconstruction_loss
+    loss = feature_similarity_loss + noise_loss
+    # loss = feature_similarity_loss + noise_loss + reconstruction_loss
     # loss = feature_similarity_loss + flipped_feature_similarity_loss + noise_loss
-    # loss = l2_feature_loss
+    # loss = feature_similarity_loss
 
     loss.backward()
     optimizer.step()
@@ -129,9 +128,6 @@ gc.collect()
 
 device = torch.device(f"cuda:{gpu}" if torch.cuda.is_available() else "cpu")
 
-# load model and loss
-lpips_loss_fn = lpips.LPIPS(net='alex').to(device)
-
 with open('config.pkl', 'rb') as f:
     config = pickle.load(f)
 model = load_model_from_config(config, "models/ldm/text2img-large/model.ckpt").first_stage_model.to(device)
@@ -140,8 +136,8 @@ for param in model.parameters():
     param.requires_grad = False
 
 # load images and noise
-base_instance = load_image_toTensor(f'{load_folder}/{image_instance}.png').to(device)
-target_instance = load_image_toTensor(f'{load_folder}/{image_instance}o.png').to(device)
+base_instance = load_image_toTensor(f'{load_folder}/1.png').to(device) # share similar input space with this image
+target_instance = load_image_toTensor(f'{load_folder}/1o.png').to(device) # share similar target space with this image
 # base_instance = torch.zeros(target_instance.shape).to(device)
 # base_instance = 0.5 + torch.randn(target_instance.shape).to(device)
 
