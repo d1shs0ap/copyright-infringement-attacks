@@ -1,4 +1,4 @@
-name: ldm
+name: ldm-copyright
 channels:
   - pytorch
   - defaults
@@ -27,6 +27,7 @@ dependencies:
     - torchmetrics==0.6.0
     - torcheval==0.0.7
     - kornia==0.6
+    - ipykernel==6.27.1
     - -e git+https://github.com/CompVis/taming-transformers.git@master#egg=taming-transformers
     - -e git+https://github.com/openai/CLIP.git@main#egg=clip
     - -e .

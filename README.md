@@ -6,7 +6,7 @@ Our code builds on, and shares requirements with [Latent Diffusion Models (LDM)]
 
 ```
 conda env create -f environment.yaml
-conda activate ldm
+conda activate ldm-copyright
 ```
 
 You will also need the official LDM text-to-image checkpoint, available through the [LDM project page](https://github.com/CompVis/latent-diffusion). 
@@ -19,11 +19,11 @@ wget -O models/ldm/text2img-large/model.ckpt https://ommer-lab.com/files/latent-
 ```
 
 ## Data
-Symbol experiment: `poison/bottle_watermark_clipped/`
+- Symbol experiment: `poison/bottle_watermark_clipped/`
+-  Content experiment: `poison/sunflowers_clipped/`
+- Style experiment: `poison/style_clipped/` 
 
-Content experiment: `poison/sunflowers_clipped/`
-
-Style experiment: `poison/style_clipped/` (`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)
+`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results
 
 
 ## Disguised Poison Generation
@@ -44,7 +44,7 @@ The following parameters can be tweaked for your experiments:
 - `clipped`: if set to `True`, bound the image between 0 and 1
 
 For each 1000 iterations, three images will be saved:
-1. `poison_$iteration.pt`: your poisoned image in `.pt` format. ** This, rather than the images, should be fed into textual inversion's `invert.sh`. **
+1. `poison_$iteration.pt`: your poisoned image in `.pt` format. **This, rather than the images, should be fed into textual inversion's `invert.sh`.**
 2. `poison_$iteration.jpg`: your poisoned image, displayed in `.jpg` format.
 3. `poison_$iteration_decoded.jpg`: the "revealed" disguise for encoder-decoder examination.
 
@@ -99,6 +99,10 @@ To include unbounded disguises, set `loss = feature_similarity_loss` in `create_
 To create poisons that are robust against the horizontal flip data augmentation, set `loss = feature_similarity_loss + flipped_feature_similarity_loss + noise_loss` in `create_poison.py`.
 
 To add in the horizontal flip data augmentation in textual inversion, uncomment `image = transforms.functional.hflip(image)` in `ldm/data/personalized.py`.
+
+## Appendix C: quantitative detection
+
+To reproduce the quantitative detection results, run `detection.ipynb` **after generating all symbol, style, and content poisons**.
 
 ## Appendix D : circumventing detection
 

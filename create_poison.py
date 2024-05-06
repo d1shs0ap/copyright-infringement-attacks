@@ -24,7 +24,8 @@ clipped: if set to True, bound the image between 0 and 1 (this should expect to 
 gpu = 0
 alpha = 8000
 save_folder = f'poison/bottle_watermark_clipped/img_train_1'
-load_folder = f'poison/bottle_watermark_clipped'
+base_image_path = "poison/bottle_watermark_clipped/base_images/1.png" 
+target_image_path = "poison/bottle_watermark_clipped/target_images/1.png"
 clipped = True
 
 ''' load_model_from_config will return a torch model, by given a config and a model ckpt
@@ -156,8 +157,8 @@ for param in model.parameters():
     param.requires_grad = False
 
 # load images and noise
-base_instance = load_image_toTensor(f'{load_folder}/1.png').to(device) # share similar input space with this image
-target_instance = load_image_toTensor(f'{load_folder}/1o.png').to(device) # share similar target space with this image
+base_instance = load_image_toTensor(base_image_path).to(device) # share similar input space with this image
+target_instance = load_image_toTensor(target_image_path).to(device) # share similar target space with this image
 # base_instance = torch.zeros(target_instance.shape).to(device)
 # base_instance = 0.5 + torch.randn(target_instance.shape).to(device)
 
