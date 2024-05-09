@@ -4,9 +4,9 @@ from FSSAAD.pytorch_msssim import msssim
 from torch.nn import functional as F
 
 import torch
+import torchvision
 import gc
 import pickle
-import lpips
 import os
 import time
 
@@ -137,9 +137,6 @@ torch.cuda.empty_cache()
 gc.collect()
 
 device = torch.device(f"cuda:{gpu}" if torch.cuda.is_available() else "cpu")
-
-# load model and loss
-lpips_loss_fn = lpips.LPIPS(net='alex').to(device)
 
 with open('config.pkl', 'rb') as f:
     config = pickle.load(f)
