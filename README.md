@@ -48,17 +48,7 @@ For each 1000 iterations, three images will be saved:
 2. `poison_$iteration.jpg`: your poisoned image, displayed in `.jpg` format.
 3. `poison_$iteration_decoded.jpg`: the "revealed" disguise for encoder-decoder examination.
 
-
-Alternatively, if you found your base image and target image are not in different folder or naming differently, you will no longer need a `load_folder`, but instead fully defined the path of `base_instance` and `target_instance`.
-
-Be sure to define the ```TO_BE_DEFINED Parameters``` in `create_poison_style.py`, then run
-
-```
-python create_poison_style.py
-```
-
-Other instructions remain the same as above.
-
+Be sure to define the ```TO_BE_DEFINED Parameters``` in `create_poison.py`. (i.e. make sure `save_folder`, `base_image_path`, `target_image_path` are defined properly)
 
 ## Textual inversion
 To invert an image set, run:
