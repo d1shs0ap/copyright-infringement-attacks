@@ -1,5 +1,8 @@
 # [ICML 2024] Disguised Copyright Infringement of Latent Diffusion Models
 
+
+![Alt text](https://github.com/d1shs0ap/copyright-infringement-attacks/blob/main/img/intro2.png)
+
 ## Setup
 
 Our code builds on, and shares requirements with [Latent Diffusion Models (LDM)](https://github.com/CompVis/latent-diffusion) and [Textual Inversion](https://github.com/rinongal/textual_inversion). To set up their environment, please run:
