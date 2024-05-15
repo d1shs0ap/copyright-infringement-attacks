@@ -1,6 +1,6 @@
 # [ICML 2024] Disguised Copyright Infringement of Latent Diffusion Models ([arXiv](https://arxiv.org/abs/2404.06737))
 
-[Yiwei Lu*](https://cs.uwaterloo.ca/~y485lu/), Matthew Y.R. Yang*, Zuoqiu Liu*, [Gautam Kamath](http://www.gautamkamath.com/), [Yaoliang Yu](https://cs.uwaterloo.ca/~y328yu/)
+[Yiwei Lu*](https://cs.uwaterloo.ca/~y485lu/), [Matthew Y.R. Yang*](https://www.matthewyryang.com/), Zuoqiu Liu*, [Gautam Kamath](http://www.gautamkamath.com/), [Yaoliang Yu](https://cs.uwaterloo.ca/~y328yu/)
 
 
 ![Alt text](https://github.com/d1shs0ap/copyright-infringement-attacks/blob/main/img/intro2.png)
