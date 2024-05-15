@@ -121,5 +121,4 @@ If you use our code in a scientific publication, we would appreciate using the f
   year        ={2024},
   url         ={https://arxiv.org/abs/2404.06737},
 }
-
 ```
