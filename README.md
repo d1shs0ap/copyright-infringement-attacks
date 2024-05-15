@@ -107,3 +107,35 @@ To create poisons that circumvent detection, set `loss = feature_similarity_loss
 
 The based images and corresponding target images are provided at `poison/appendix_style_clipped/`.
 (`/base_images` contains all the base images used, `/target_images` contains all corresponding target images used, `/poison_clipped_output` includes some demo results)
+
+
+## BibTeX Citation
+
+If you use PySAL-spaghetti in a scientific publication, we would appreciate using the following citations:
+
+```
+@article{Gaboardi2021,
+    doi       = {10.21105/joss.02826},
+    url       = {https://doi.org/10.21105/joss.02826},
+    year      = {2021},
+    publisher = {The Open Journal},
+    volume    = {6},
+    number    = {62},
+    pages     = {2826},
+    author    = {James D. Gaboardi and Sergio Rey and Stefanie Lumnitz},
+    title     = {spaghetti: spatial network analysis in PySAL},
+    journal   = {Journal of Open Source Software}
+}
+
+@misc{Gaboardi2018,
+    author    = {Gaboardi, James D. and Laura, Jay and Rey, Sergio and 
+                 Wolf, Levi John and Folch, David C. and Kang, Wei and 
+                 Stephens, Philip and Schmidt, Charles},
+    month     = {oct},
+    year      = {2018},
+    title     = {pysal/spaghetti},
+    url       = {https://github.com/pysal/spaghetti},
+    doi       = {10.5281/zenodo.1343650},
+    keywords  = {graph-theory,network-analysis,python,spatial-networks,topology}
+}
+```
