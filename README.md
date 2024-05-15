@@ -111,31 +111,15 @@ The based images and corresponding target images are provided at `poison/appendi
 
 ## BibTeX Citation
 
-If you use PySAL-spaghetti in a scientific publication, we would appreciate using the following citations:
+If you use our code in a scientific publication, we would appreciate using the following citations:
 
 ```
-@article{Gaboardi2021,
-    doi       = {10.21105/joss.02826},
-    url       = {https://doi.org/10.21105/joss.02826},
-    year      = {2021},
-    publisher = {The Open Journal},
-    volume    = {6},
-    number    = {62},
-    pages     = {2826},
-    author    = {James D. Gaboardi and Sergio Rey and Stefanie Lumnitz},
-    title     = {spaghetti: spatial network analysis in PySAL},
-    journal   = {Journal of Open Source Software}
+@inproceedings{LuYLKY24,
+  title       ={Disguised Copyright Infringement of Latent Diffusion Model},
+  author      ={Lu, Yiwei and Yang, Matthew YR and Liu, Zuoqiu and Kamath, Gautam and Yu, Yaoliang},
+  booktitle   ={International Conference on Machine Learning},
+  year        ={2024},
+  url         ={https://arxiv.org/abs/2404.06737},
 }
 
-@misc{Gaboardi2018,
-    author    = {Gaboardi, James D. and Laura, Jay and Rey, Sergio and 
-                 Wolf, Levi John and Folch, David C. and Kang, Wei and 
-                 Stephens, Philip and Schmidt, Charles},
-    month     = {oct},
-    year      = {2018},
-    title     = {pysal/spaghetti},
-    url       = {https://github.com/pysal/spaghetti},
-    doi       = {10.5281/zenodo.1343650},
-    keywords  = {graph-theory,network-analysis,python,spatial-networks,topology}
-}
 ```
