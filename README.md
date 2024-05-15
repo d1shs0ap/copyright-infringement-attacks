@@ -1,4 +1,4 @@
-# Disguised Copyright Infringement of Latent Diffusion Models
+# [ICML 2024] Disguised Copyright Infringement of Latent Diffusion Models
 
 ## Setup
 
